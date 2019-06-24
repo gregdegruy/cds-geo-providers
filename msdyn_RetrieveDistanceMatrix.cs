@@ -14,16 +14,16 @@
 //  PARTICULAR PURPOSE. 
 // =====================================================================
 
+using Dynamics.FieldService.GeospatialPlugin.Providers;
 using System;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using Microsoft.Crm.Sdk.Samples.GoogleDataContracts;
 using Microsoft.Xrm.Sdk;
-using static Microsoft.Crm.Sdk.Samples.GoogleDataContracts.DistanceMatrixResponse.CResult.CElement;
 
+// TODO: Test this class
 namespace Microsoft.Crm.Sdk.Samples
 {
 
@@ -32,7 +32,7 @@ namespace Microsoft.Crm.Sdk.Samples
     /// </summary>
     public class msdyn_RetrieveDistance : IPlugin
     {
-        GoogleConstants googleConstants = GoogleConstants.Instance;
+        GoogleMaps googleMaps = GoogleMaps.Instance;
 
         const string PluginStatusCodeKey = "PluginStatus";
         const string SourcesKey = "Sources";
@@ -92,22 +92,22 @@ namespace Microsoft.Crm.Sdk.Samples
 
                 // Make Distance Matrix call to Google API
                 WebClient client = new WebClient();
-                var url = String.Format($"https://{googleConstants.GoogleApiServer}{googleConstants.GoogleDistanceMatrixPath}/json"
+                var url = String.Format($"https://{googleMaps.ApiServer}{googleMaps.DistanceMatrixPath}/json"
                     + "?units=imperial"
                     + $"&origins={string.Join("|", ((EntityCollection)InputParameters[SourcesKey]).Entities.Select(e => e.GetAttributeValue<double?>("latitude") + "," + e.GetAttributeValue<double?>("longitude")))}"
                     + $"&destinations={string.Join("|", ((EntityCollection)InputParameters[TargetsKey]).Entities.Select(e => e.GetAttributeValue<double?>("latitude") + "," + e.GetAttributeValue<double?>("longitude")))}"
-                    + $"&key={googleConstants.GoogleApiKey}");
+                    + $"&key={googleMaps.ApiKey}");
                 tracingService.Trace($"Calling {url}\n");
                 string response = client.DownloadString(url);   // Post ...
 
                 tracingService.Trace("Parsing response ...\n");
-                DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(DistanceMatrixResponse));    // Deserialize response json
-                object objResponse = jsonSerializer.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(response)));     // Get response as an object
-                DistanceMatrixResponse distancematrixResponse = objResponse as DistanceMatrixResponse;       // Unbox as our data contracted class for response
+                DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(GoogleMapsDistanceMatrixResponse));
+                object objResponse = jsonSerializer.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(response)));
+                GoogleMapsDistanceMatrixResponse distancematrixResponse = objResponse as GoogleMapsDistanceMatrixResponse;
 
                 tracingService.Trace("Response Status = " + distancematrixResponse.Status + "\n");
                 if (distancematrixResponse.Status != "OK")
-                    throw new ApplicationException($"Server {googleConstants.GoogleApiServer} application error (Status={distancematrixResponse.Status}). {distancematrixResponse.ErrorMessage}");
+                    throw new ApplicationException($"Server {googleMaps.ApiServer} application error (Status={distancematrixResponse.Status}). {distancematrixResponse.ErrorMessage}");
 
                 tracingService.Trace("Checking distancematrixResponse.Results...\n");
                 if (distancematrixResponse.Rows != null)
@@ -120,7 +120,7 @@ namespace Microsoft.Crm.Sdk.Samples
                     OutputParameters[MatrixKey] = result;
 
                 }
-                else throw new ApplicationException($"Server {googleConstants.GoogleApiServer} application error (missing Rows)");
+                else throw new ApplicationException($"Server {googleMaps.ApiServer} application error (missing Rows)");
             }
             catch (Exception ex)
             {
@@ -129,14 +129,15 @@ namespace Microsoft.Crm.Sdk.Samples
 
                 //TODO: You may need to decide which caught exceptions will rethrow and which ones will simply signal geocoding did not complete.
                 throw new InvalidPluginExecutionException(string.Format("Geocoding failed at {0} with exception -- {1}: {2}"
-                    , googleConstants.GoogleApiServer, ex.GetType().ToString(), ex.Message), ex);
+                    , googleMaps.ApiServer, ex.GetType().ToString(), ex.Message), ex);
             }
 
             // For debugging purposes, throw an exception to see the details of the parameters
             CreateExceptionWithDetails("Debugging...", InputParameters, OutputParameters, SharedVariables);
         }
 
-        private Entity ToEntity(string status, CProperty duration, CProperty meters)
+        private Entity ToEntity(string status, GoogleMapsDistanceMatrixResponse.CResult.CElement.CProperty duration, 
+            GoogleMapsDistanceMatrixResponse.CResult.CElement.CProperty meters)
         {
             var e = new Entity("organization");
             e["status"] = status;

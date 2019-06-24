@@ -62,7 +62,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GisUtility.cs" />
-    <Compile Include="GoogleDataContracts.cs" />
     <Compile Include="msdyn_GeocodeAddress.cs" />
     <Compile Include="msdyn_RetrieveDistanceMatrix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
