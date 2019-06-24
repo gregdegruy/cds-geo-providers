@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Crm.Sdk.Samples;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Net;
 using System.Runtime.Serialization;
 
 namespace Dynamics.FieldService.GeospatialPlugin.Providers
@@ -30,7 +34,35 @@ namespace Dynamics.FieldService.GeospatialPlugin.Providers
             }
         }
 
-    }
+        public override string ConstructUrl(Microsoft.Xrm.Sdk.ParameterCollection InputParameters, IPluginExecutionContext pluginExecutionContext, IOrganizationService organizationService, ITracingService tracingService = null)
+        {
+            int Lcid = (int)InputParameters[LcidKey];
+            string _address = string.Empty;
+            if (Lcid == 0)
+            {
+                var userSettingsQuery = new QueryExpression("usersettings");
+                userSettingsQuery.ColumnSet.AddColumns("uilanguageid", "systemuserid");
+                userSettingsQuery.Criteria.AddCondition("systemuserid", ConditionOperator.Equal, pluginExecutionContext.InitiatingUserId);
+                var userSettings = organizationService.RetrieveMultiple(userSettingsQuery);
+                if (userSettings.Entities.Count > 0)
+                    Lcid = (int)userSettings.Entities[0]["uilanguageid"];
+            }
+
+            // Arrange the address components in a single comma-separated string, according to LCID
+            _address = GisUtility.FormatInternationalAddress(Lcid,
+                (string)InputParameters[Address1Key],
+                (string)InputParameters[PostalCodeKey],
+                (string)InputParameters[CityKey],
+                (string)InputParameters[StateKey],
+                (string)InputParameters[CountryKey]);
+
+            WebClient client = new WebClient();
+            var url = $"https://{ApiServer}{GeocodePath}/json?address={_address}&key={ApiKey}";
+            tracingService.Trace($"Calling {url}\n");
+
+            return url;
+        }
+    }    
 
     [DataContract(Namespace = "")]
     public class GoogleMapsGeocodeResponse

@@ -57,7 +57,8 @@ namespace Microsoft.Crm.Sdk.Samples
             IOrganizationService OrganizationService = factory.CreateOrganizationService(PluginExecutionContext.UserId);
             ITracingService TracingService = (ITracingService)serviceProvider.GetService(typeof(ITracingService));
             // ExecuteGeocodeAddressGoogle(PluginExecutionContext, OrganizationService, TracingService);
-            ExecuteGeocodeAddressTrimble(PluginExecutionContext, OrganizationService, TracingService);
+            // ExecuteGeocodeAddress(PluginExecutionContext, OrganizationService, TracingService);
+            trimbleMaps.ExecuteGeocodeAddress(PluginExecutionContext, OrganizationService, tracingService);
         }
 
 
@@ -146,14 +147,12 @@ namespace Microsoft.Crm.Sdk.Samples
 
         }
 
-        public void ExecuteGeocodeAddressTrimble(IPluginExecutionContext pluginExecutionContext, IOrganizationService organizationService, ITracingService tracingService = null)
-        {
-            // 5 fields (string) for individual parts of an address
-            ParameterCollection InputParameters = pluginExecutionContext.InputParameters;
-            // 2 fields (double) for resultant geolocation
-            ParameterCollection OutputParameters = pluginExecutionContext.OutputParameters;
+        public void ExecuteGeocodeAddress(IPluginExecutionContext pluginExecutionContext, IOrganizationService organizationService, ITracingService tracingService = null)
+        {            
+            ParameterCollection InputParameters = pluginExecutionContext.InputParameters; // 5 fields (string) for individual parts of an address
+            ParameterCollection OutputParameters = pluginExecutionContext.OutputParameters; // 2 fields (double) for resultant geolocation
 
-            tracingService.Trace("ExecuteGeocodeAddress Trimble started. InputParameters = {0}, OutputParameters = {1}", InputParameters.Count().ToString(), OutputParameters.Count().ToString());
+            tracingService.Trace("ExecuteGeocodeAddress started. InputParameters = {0}, OutputParameters = {1}", InputParameters.Count().ToString(), OutputParameters.Count().ToString());
 
             try
             {
@@ -195,10 +194,6 @@ namespace Microsoft.Crm.Sdk.Samples
                 HttpWebRequest req = WebRequest.Create(requestUri) as HttpWebRequest;
                 req.Headers["Authorization"] = "03F68EA06887B2428771784EFEB79DDD";
                 req.ContentType = "application/json";
-
-                //WebClient client = new WebClient();
-                //client.Headers["Authorization"] = trimbleMaps.ApiKey;
-                //string response = client.DownloadString(url);
 
                 try
                 {

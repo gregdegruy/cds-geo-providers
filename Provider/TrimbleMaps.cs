@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Crm.Sdk.Samples;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 using System.Configuration;
 using System.Runtime.Serialization;
 
@@ -31,6 +33,46 @@ namespace Dynamics.FieldService.GeospatialPlugin.Providers
             }
         }
 
+        public override string ConstructUrl(ParameterCollection InputParameters, IPluginExecutionContext pluginExecutionContext, IOrganizationService organizationService, ITracingService tracingService = null)
+        {
+            int Lcid = (int)InputParameters[LcidKey];
+            string address = string.Empty;
+            if (Lcid == 0)
+            {
+                var userSettingsQuery = new QueryExpression("usersettings");
+                userSettingsQuery.ColumnSet.AddColumns("uilanguageid", "systemuserid");
+                userSettingsQuery.Criteria.AddCondition("systemuserid", ConditionOperator.Equal, pluginExecutionContext.InitiatingUserId);
+                var userSettings = organizationService.RetrieveMultiple(userSettingsQuery);
+                if (userSettings.Entities.Count > 0)
+                    Lcid = (int)userSettings.Entities[0]["uilanguageid"];
+            }
+
+            address = GisUtility.FormatInternationalAddress(Lcid,
+                (string)InputParameters[Address1Key],
+                (string)InputParameters[PostalCodeKey],
+                (string)InputParameters[CityKey],
+                (string)InputParameters[StateKey],
+                (string)InputParameters[CountryKey]);
+
+            var street = ((string)InputParameters[Address1Key]).Replace(" ", "+");
+            var city = ((string)InputParameters[CityKey]).Replace(" ", "+");
+            var state = (string)InputParameters[StateKey];
+            var postcode = (string)InputParameters[PostalCodeKey];
+            tracingService.Trace("street " + street);
+            tracingService.Trace("postcode " + postcode);
+            tracingService.Trace("city " + city);
+            tracingService.Trace("state " + state);
+
+            var url = $"https://{ApiServer}{GeocodePath}?street={street}&city={city}&state={state}&postcode={postcode}&region=NA&dataset=Current";
+            tracingService.Trace($"Calling {url}\n");
+
+            return url;
+        }
+
+        public override void ExecuteGeocodeAddress(IPluginExecutionContext pluginExecutionContext, IOrganizationService organizationService, string uri = null, ITracingService tracingService = null)
+        {
+            base.ExecuteGeocodeAddress(pluginExecutionContext, organizationService, ConstructUrl(), tracingService);
+        }
     }
 
     [DataContract(Namespace = "")]

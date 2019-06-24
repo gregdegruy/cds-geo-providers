@@ -66,6 +66,7 @@
     <Compile Include="msdyn_RetrieveDistanceMatrix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\GoogleMaps.cs" />
+    <Compile Include="Provider\IProvider.cs" />
     <Compile Include="Provider\Provider.cs" />
     <Compile Include="Provider\TrimbleMaps.cs" />
     <Compile Include="StepRegistration.cs" />
