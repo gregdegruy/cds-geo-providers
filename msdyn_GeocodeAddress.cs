@@ -21,16 +21,13 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using Microsoft.Crm.Sdk.Samples.GoogleDataContracts;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
-using System.Collections.Generic;
 
 namespace Microsoft.Crm.Sdk.Samples
 {
     public class msdyn_GeocodeAddress : IPlugin
     {
-        GoogleConstants googleConstants = GoogleConstants.Instance;
         GoogleMaps googleMaps = GoogleMaps.Instance;
         TrimbleMaps trimbleMaps = TrimbleMaps.Instance;
 
@@ -67,17 +64,13 @@ namespace Microsoft.Crm.Sdk.Samples
         /// <summary>
         /// Retrieve geocode address using Google Api
         /// </summary>
-        public void ExecuteGeocodeAddressGoogle(IPluginExecutionContext pluginExecutionContext, IOrganizationService organizationService,  ITracingService tracingService)
-        {
-            //Contains 5 fields (string) for individual parts of an address
-            ParameterCollection InputParameters = pluginExecutionContext.InputParameters;
-            // Contains 2 fields (double) for resultant geolocation
-            ParameterCollection OutputParameters = pluginExecutionContext.OutputParameters;
-            //Contains 1 field (int) for status of previous and this plugin
-            ParameterCollection SharedVariables = pluginExecutionContext.SharedVariables;
+        public void ExecuteGeocodeAddressGoogle(IPluginExecutionContext pluginExecutionContext, IOrganizationService organizationService,  ITracingService tracingService = null)
+        {            
+            ParameterCollection InputParameters = pluginExecutionContext.InputParameters; // 5 fields (string) for individual parts of an address
+            ParameterCollection OutputParameters = pluginExecutionContext.OutputParameters; // 2 fields (double) for resultant geolocation
+            ParameterCollection SharedVariables = pluginExecutionContext.SharedVariables; // 1 field (int) for status of previous and this plugin
 
             tracingService.Trace("ExecuteGeocodeAddress started. InputParameters = {0}, OutputParameters = {1}", InputParameters.Count().ToString(), OutputParameters.Count().ToString());
-
 
             try
             {
@@ -105,16 +98,15 @@ namespace Microsoft.Crm.Sdk.Samples
                     (string)InputParameters[StateKey],
                     (string)InputParameters[CountryKey]);
 
-                // Make Geocoding call to Google API
                 WebClient client = new WebClient();
                 var url = $"https://{googleMaps.ApiServer}{googleMaps.GeocodePath}/json?address={_address}&key={googleMaps.ApiKey}";
                 tracingService.Trace($"Calling {url}\n");
-                string response = client.DownloadString(url);   // Post ...
+                string response = client.DownloadString(url);
 
                 tracingService.Trace("Parsing response ...\n");
-                DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(GeocodeResponse));
+                DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(GoogleMapsGeocodeResponse));
                 object objResponse = jsonSerializer.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(response)));
-                GeocodeResponse geocodeResponse = objResponse as GeocodeResponse;
+                GoogleMapsGeocodeResponse geocodeResponse = objResponse as GoogleMapsGeocodeResponse;
 
                 tracingService.Trace("Response Status = " + geocodeResponse.Status + "\n");
                 if (geocodeResponse.Status != "OK")
@@ -154,7 +146,7 @@ namespace Microsoft.Crm.Sdk.Samples
 
         }
 
-        public void ExecuteGeocodeAddressTrimble(IPluginExecutionContext pluginExecutionContext, IOrganizationService organizationService, ITracingService tracingService)
+        public void ExecuteGeocodeAddressTrimble(IPluginExecutionContext pluginExecutionContext, IOrganizationService organizationService, ITracingService tracingService = null)
         {
             // 5 fields (string) for individual parts of an address
             ParameterCollection InputParameters = pluginExecutionContext.InputParameters;
