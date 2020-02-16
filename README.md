@@ -11,7 +11,7 @@ Each Provider contains a singleton and a data contract to consume the response.
 
 | <h1 align="center">CDS Plug-in</h1><p align="center"><img src="img/p1.png" height="24"></p> | <h1 align="center">Maps APIs</h1><p align="center"><img src="img/p2.png" height="24"></p> |
 | :------------------------ | :--------------------- |
-| Server side C# event handler to run custom code in Dynamics 365 / Power Apps / CDS / Common Data Service / Maybe another rebrand one day :P. | Using Google maps and even Trimble or others can be supported to override the default Bing maps geospatial provider. |
+| Server side C# event handler to run custom code in Dynamics 365 / Power Apps / CDS / Common Data Service / Maybe another rebrand one day :P. | Using Google maps and even Trimble or others (**Please contribute others if you'd like too**) can be supported to override the default Bing maps geospatial provider. |
 
 # Creates
 
