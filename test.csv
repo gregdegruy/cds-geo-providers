@@ -1,0 +1,2 @@
+Test 1,builtin,regulatoryCompliance,null
+Test 2,custom,regulatoryCompliance,https://raw.githubusercontent.com/Azure/azure-quickstart-templates/refs/heads/master/quickstarts/microsoft.storage/storage-account-create/azuredeploy.json
