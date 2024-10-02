@@ -1,5 +1,3 @@
 name,type,category,armTemplateFileName
 Name of my row 1,builtin,regulatoryCompliance,null
 Name of my row 2,custom,regulatoryCompliance,https://raw.githubusercontent.com/Azure/azure-quickstart-templates/refs/heads/master/quickstarts/microsoft.storage/storage-account-create/azuredeploy.json
-Name of my row 3,custom,regulatoryCompliance,https://raw.githubusercontent.com/Azure/azure-quickstart-templates/refs/heads/master/quickstarts/microsoft.storage/storage-blob-container/azuredeploy.json
-Name of my row 4,custom,regulatoryCompliance,https://raw.githubusercontent.com/Azure/azure-quickstart-templates/refs/heads/master/quickstarts/microsoft.web/app-function/azuredeploy.json
