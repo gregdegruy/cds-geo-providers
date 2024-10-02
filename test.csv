@@ -1,3 +1,4 @@
 Test 1,builtin,regulatoryCompliance,null
 Test 2,custom,regulatoryCompliance,https://raw.githubusercontent.com/Azure/azure-quickstart-templates/refs/heads/master/quickstarts/microsoft.storage/storage-account-create/azuredeploy.json,
-Test 3,custom,regulatoryCompliance,https://raw.githubusercontent.com/Azure/azure-quickstart-templates/refs/heads/master/quickstarts/microsoft.storage/storage-blob-container/azuredeploy.json
+Test 3,custom,regulatoryCompliance,https://raw.githubusercontent.com/Azure/azure-quickstart-templates/refs/heads/master/quickstarts/microsoft.storage/storage-blob-container/azuredeploy.json,
+Test 4,custom,regulatoryCompliance,https://raw.githubusercontent.com/Azure/azure-quickstart-templates/refs/heads/master/quickstarts/microsoft.storage/storage-blob-container/azuredeploy.json
